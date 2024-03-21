@@ -10,8 +10,13 @@ venv
 .idea
 dist
 static
+!/web/public/static/
 .DS_Store
 config.json
 model
 build
 temp
+temp.py
+temp.json
+web/src/assets/css/youtube/temp.css
+web/src/components/temp.vue

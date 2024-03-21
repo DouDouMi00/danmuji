@@ -69,9 +69,13 @@ export async function getRunningMode() {
 export async function init(loginToken: string) {
     token = loginToken;
     if (token == null || token == '' || token == undefined) {
-        alert('无法登陆到服务器，未携带有效token');
-        return;
-    }
+        let protocol_http = 'http://';
+        if (window.location.protocol == 'https:') {
+            protocol_http = 'https://';
+        }
+        // token= window.prompt('无法登陆到服务器，未携带有效token，请输入token:') || '';
+        // window.location.href = `${protocol_http}${functionURL}/?token=${token}`;
+        };    
     let protocol = 'ws://';
     if (window.location.protocol == 'https:') {
         protocol = 'wss://';

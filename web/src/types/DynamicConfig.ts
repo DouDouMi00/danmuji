@@ -30,6 +30,8 @@ export type DynamicConfig = {
             "symbolEnable": boolean,
             "emojiEnable": boolean,
             "deduplicate": boolean,
+            "readfansMedalName" : boolean,
+            "readfansMedalGuardLevel" : boolean,
             "isFansMedalBelongToLive": boolean,
             "fansMedalLevelBigger": number,
             "fansMedalGuardLevelBigger": number,

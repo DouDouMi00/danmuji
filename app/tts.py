@@ -114,32 +114,41 @@ async def tts(text, channel=0, config=None):
     if ttsConfig['japanese']['enable']:
         text = re.sub(r'[\u3040-\u309F\u30A0-\u30FF]+', calculateTags("ja-JP", ttsConfig['japanese'], '\g<0>'), text)
     ssml = f'<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="zh-CN"><voice xml:lang="zh-CN">{text}</voice></speak>'
-    # Synthesize text to a stream
-    stream = await channels[channel]['synthesizer'].synthesize_ssml_to_stream_async(ssml)
+    try:
+        # Synthesize text to a stream
+        stream = await channels[channel]['synthesizer'].synthesize_ssml_to_stream_async(ssml)
 
-    temp_buffer = bytes(0)
-    data_reader = streams.DataReader(stream)
-    await data_reader.load_async(stream.size)
-    while data_reader.unconsumed_buffer_length > 0:
-        temp_buffer += bytes(data_reader.read_buffer(data_reader.unconsumed_buffer_length)) + b'\x00\x00\x00\x00\x00\x00\x00\x00'
+        temp_buffer = bytes(0)
+        data_reader = streams.DataReader(stream)
+        await data_reader.load_async(stream.size)
+        while data_reader.unconsumed_buffer_length > 0:
+            temp_buffer += bytes(data_reader.read_buffer(data_reader.unconsumed_buffer_length)) + b'\x00\x00\x00\x00\x00\x00\x00\x00'
 
-    byte_stream = io.BytesIO(temp_buffer)
+        byte_stream = io.BytesIO(temp_buffer)
 
-    pygame.mixer.Channel(channel).stop()
-    while pygame.mixer.Channel(channel).get_busy():
-        await asyncio.sleep(0.01)
-    
-    pygame.mixer.Channel(channel).play(pygame.mixer.Sound(byte_stream))
+        pygame.mixer.Channel(channel).stop()
+        while pygame.mixer.Channel(channel).get_busy():
+            await asyncio.sleep(0.01)
+        
+        pygame.mixer.Channel(channel).play(pygame.mixer.Sound(byte_stream))
 
-    while pygame.mixer.Channel(channel).get_busy():
-        await asyncio.sleep(0.01)
-
-    stream.close()
+        while pygame.mixer.Channel(channel).get_busy():
+            await asyncio.sleep(0.01)
+    finally:
+        stream.close()
 
 
 def messagesToText(msg):
+    filter_config=getJsonConfig()["dynamic"]["filter"]
     if msg['type'] == 'danmu':
-        return f"{msg['uname']}说{msg['msg']}"
+        liveRoomGuardLeveltxt, fansMedalNametxt, fansMedalLeveltxt = "", "", ""
+        if msg['liveRoomGuardLevel'] !=0 and filter_config["danmu"]["readfansMedalGuardLevel"]:
+            liveRoomGuardLeveltxt = f"头衔{msg['liveRoomGuardLevelName']}"
+        if msg['fansMedalName'] != 0 and filter_config["danmu"]["readfansMedalName"]:
+            fansMedalNametxt = f"勋章{msg['fansMedalName']}"
+        if msg['fansMedalLevel'] != 0 and filter_config["danmu"]["readfansMedalName"]:
+            fansMedalLeveltxt = f"{msg['fansMedalLevel']}级"
+        return f"{liveRoomGuardLeveltxt} {fansMedalNametxt} {fansMedalLeveltxt} {msg['uname']}说{msg['msg']}"
     elif msg['type'] == 'gift':
         return f"感谢{msg['uname']}送出的{msg['num']}个{msg['giftName']}"
     elif msg['type'] == 'guardBuy':

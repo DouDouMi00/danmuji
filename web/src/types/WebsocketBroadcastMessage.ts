@@ -5,7 +5,13 @@ export type DanmuEvent = {
     'filterd': boolean,
     'uid': number,
     'uname': string,
-    'msg': string
+    'faceImg': string,
+    'msg': string,
+    'time': number,
+    'authorType': number,
+    'richContent':string,
+    'liveRoomGuardLevel': number,
+    'repeated': number
 };
 
 export type GiftEvent = {
@@ -13,8 +19,12 @@ export type GiftEvent = {
     'filterd': boolean,
     'uid': number,
     'uname': string,
+    'faceImg': string,
     'giftName': string,
-    'num': number
+    'num': number,
+    'time': number,
+    'unamePronunciation': string,
+    'price' :number,
 };
 
 export type GuardBuyEvent = {
@@ -24,7 +34,12 @@ export type GuardBuyEvent = {
     'uname': string,
     'newGuard': number,
     'giftName': string,
-    'num': number
+    'num': number,
+    'faceImg': string,
+    'time': number,
+    'unamePronunciation': string,
+    'liveRoomGuardLevel': number,
+    'title' :string,
 };
 
 export type LikeEvent = {
@@ -54,7 +69,10 @@ export type SuperChatEvent = {
     "uid": number,
     "uname": string,
     "price": number,
-    "msg": string
+    "msg": string,
+    'faceImg': string,
+    'unamePronunciation': string,
+    'title' :string,
 };
 
 export type ConfigEvent = DynamicConfig;
