@@ -63,5 +63,5 @@ jobs:
       - name: Upload installer.exe
         uses: actions/upload-artifact@v2
         with:
-          name: Installer_win
+          name: qedanmuji_Installer_win
           path: .\Installer\*.exe
