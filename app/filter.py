@@ -3,7 +3,7 @@ import regex
 import asyncio
 
 lastDanmuMessages = []
-def filterDanmu(uid, uname, isFansMedalBelongToLive, fansMedalLevel, fansMedalGuardLevel, msg, isEmoji):
+def filterDanmu(uid, uname, isFansMedalBelongToLive, fansMedalMedalName ,fansMedalLevel, fansMedalGuardLevel, msg, isEmoji):
     global lastDanmuMessages
     dynamicConfig = getJsonConfig()['dynamic']
     if not dynamicConfig["filter"]["danmu"]["enable"]:

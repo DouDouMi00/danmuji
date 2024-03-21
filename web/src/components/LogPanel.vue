@@ -9,6 +9,8 @@
                 <template v-slot:headers>
                     <tr>
                         <th class="text-left username">用户名</th>
+                        <th class="text-left guard">头衔</th>
+                        <th class="text-left medal">勋章</th>
                         <th class="text-left action">操作</th>
                         <th class="text-left text">文本</th>
                     </tr>
@@ -16,6 +18,8 @@
                 <template v-slot:item="{ item: { raw } }">
                     <tr :class="{ filterd: raw.filterd }">
                         <td>{{ raw.uname }}</td>
+                        <td >{{ raw.fansMedalGuardLevel }}</td>
+                        <td >{{ raw.fansMedalName }}:{{ raw.fansMedalLevel }}</td>
                         <td v-if="raw.type == 'danmu'">弹幕</td>
                         <td v-if="raw.type == 'danmu'">{{ raw.msg }}</td>
                     
@@ -48,17 +52,23 @@
     flex-grow: 1;
 }
 .username {
-    width: 28%;
-
+    width: 15%;
+}
+.guard {
+    width: 5%
+}
+.medal {
+    width: 10%;
 }
 .action {
-    width: 12%;
+    width: 8%;
 }
 .text {
-    width: 60%;
+    width: 62%;
 }
 .filterd {
-    background-color: rgba(255, 0, 0, 0.7) !important;
+    color: grey;
+    background-color: rgba(138, 138, 138, 0.445) !important;
 }
 .filterd > td {
     background: none !important;

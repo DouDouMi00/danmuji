@@ -21,6 +21,13 @@ guardLevelMap = {
     3: 1
 }
 
+guardLevelMap_name= {
+    0: 0,
+    3: '总督',
+    2: '提督',
+    1: '舰长'
+} 
+
 class LiveMsgHandler(BaseHandler):
     def _on_heartbeat(self, client: BLiveClient, message: HeartbeatMessage):
         global firstHeartBeat
@@ -35,14 +42,16 @@ class LiveMsgHandler(BaseHandler):
         if len(command["info"][3]) != 0:
             isFansMedalBelongToLive = command["info"][3][3] == getJsonConfig()['engine']['bili']['liveID']
             fansMedalLevel = command["info"][3][0]
+            fansMedalName = command["info"][3][1]
             fansMedalGuardLevel = guardLevelMap[command["info"][3][10]]
         else:
             isFansMedalBelongToLive = False
             fansMedalLevel = 0
+            fansMedalName = 0
             fansMedalGuardLevel = 0
         isEmoji = command['info'][0][12] == 1 or isAllCharactersEmoji(msg)
-        timeLog(f"[Danmu] {uname}: {msg}")
-        liveEvent.emit('danmu', uid, uname, isFansMedalBelongToLive, fansMedalLevel, fansMedalGuardLevel, msg, isEmoji)
+        timeLog(f"[Danmu] [{guardLevelMap_name[fansMedalGuardLevel]}] [{fansMedalName}:{fansMedalLevel}] {uname}: {msg}")
+        liveEvent.emit('danmu', uid, uname, isFansMedalBelongToLive, fansMedalName,fansMedalLevel ,guardLevelMap_name[fansMedalGuardLevel], msg, isEmoji)
 
     def onGuardBuyCallback(self, client: BLiveClient, command: dict):
         if 'role_name' not in command['data'] or command['data']['role_name'] not in ['总督', '提督', '舰长']:

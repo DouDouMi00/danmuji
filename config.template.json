@@ -53,6 +53,8 @@
                 "symbolEnable": true,
                 "emojiEnable": true,
                 "deduplicate": false,
+                "readfansMedalName" : false,
+                "readfansMedalGuardLevel" : true,
                 "isFansMedalBelongToLive": false,
                 "fansMedalGuardLevelBigger": 0,
                 "fansMedalLevelBigger": 0,

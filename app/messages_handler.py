@@ -30,16 +30,20 @@ def messagesQueueAppendAtStart(data):
     setOutputMessagesLength(len(messagesQueue))
 
 @liveEvent.on('danmu')
-async def onDanmu(uid, uname, isFansMedalBelongToLive, fansMedalLevel, fansMedalGuardLevel, msg, isEmoji):
-    if filterDanmu(uid, uname, isFansMedalBelongToLive, fansMedalLevel, fansMedalGuardLevel, msg, isEmoji):
-        appendDanmuFilteredStats(uid=uid, uname=uname, msg=msg, isEmoji=isEmoji, filterd=False)
+async def onDanmu(uid, uname, isFansMedalBelongToLive,fansMedalName ,fansMedalLevel,fansMedalGuardLevel, msg, isEmoji):
+    if filterDanmu(uid, uname, isFansMedalBelongToLive, fansMedalName ,fansMedalLevel, fansMedalGuardLevel, msg, isEmoji):
+        appendDanmuFilteredStats(uid=uid, uname=uname, msg=msg, isEmoji=isEmoji, fansMedalName=fansMedalName,fansMedalLevel=fansMedalLevel,fansMedalGuardLevel=fansMedalGuardLevel,filterd=False)
         messagesQueueAppend({
             'type': 'danmu',
             'time': time.time(),
             'uid': uid,
             'uname': uname,
-            'msg': msg
+            'msg': msg,
+            'fansMedalName' : fansMedalName,
+            'fansMedalLevel' : fansMedalLevel,
+            'fansMedalGuardLevel' : fansMedalGuardLevel,
         })
+
     else:
         appendDanmuFilteredStats(uid=uid, uname=uname, msg=msg, isEmoji=isEmoji, filterd=True)
 
