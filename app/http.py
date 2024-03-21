@@ -35,9 +35,17 @@ def onlyLocal(func):
     return wrappedFunc
 
 @app.route('/', methods=['GET'])
+@app.route('/StyleGenerator', methods=['GET'])
+@app.route('/Room', methods=['GET'])
 async def index():
     global staticFilesPath
     return await send_from_directory(staticFilesPath, 'index.html')
+
+ 
+@app.route('/static/img/<path:path>', methods=['GET'])
+async def staticFiles(path):
+    global staticFilesPath
+    return await send_from_directory(staticFilesPath+"/static/img/",path)
 
 @app.after_request
 def addHeader(response):

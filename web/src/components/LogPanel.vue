@@ -1,31 +1,44 @@
 <template>
     <v-card class="mx-auto" elevation="4">
         <v-card-title>
-            <div><p>弹幕日记</p></div>
-            <v-btn :color="locked ? 'green': 'red'" @click="emits('toggle')">{{ props.locked ? '关闭自动滚动': '启动自动滚动' }}</v-btn>
+            <meta name="referrer" content="no-referrer">
+            <div>
+                <p>弹幕日记</p>
+            </div>
+            <v-btn :color="locked ? 'green' : 'red'" @click="emits('toggle')">{{ props.locked ? '关闭自动滚动' : '启动自动滚动'
+                }}</v-btn>
         </v-card-title>
         <div ref="container" class="container">
-            <v-data-table-virtual :height="tableHeight" style="width: 100%" fixed-header :items="props.data" ref="table">
+            <v-data-table-virtual :height="tableHeight" style="width: 100%" fixed-header :items="props.data"
+                ref="table">
                 <template v-slot:headers>
                     <tr>
+                        <th class="text-left faceImg">头像</th>
                         <th class="text-left username">用户名</th>
+                        <th class="text-left guard">头衔</th>
+                        <th class="text-left medal">勋章</th>
                         <th class="text-left action">操作</th>
                         <th class="text-left text">文本</th>
                     </tr>
                 </template>
                 <template v-slot:item="{ item: { raw } }">
                     <tr :class="{ filterd: raw.filterd }">
+                        <td><img :src="raw.faceImg" alt="" style="width: 30px; height: 30px; border-radius: 50%;"></td>
                         <td>{{ raw.uname }}</td>
+                        <td>{{ raw.liveRoomGuardLevelName }}</td>
+                        <td>{{ raw.fansMedalName }}:{{ raw.fansMedalLevel }}</td>
                         <td v-if="raw.type == 'danmu'">弹幕</td>
                         <td v-if="raw.type == 'danmu'">{{ raw.msg }}</td>
-                    
+
                         <td v-if="raw.type == 'gift'">礼物</td>
                         <td v-if="raw.type == 'gift'">赠送了{{ raw.num }}个{{ raw.giftName }}</td>
-                    
+
                         <td v-if="raw.type == 'guardBuy'">上舰</td>
                         <td v-if="raw.type == 'guardBuy'">赠送了{{ raw.num }}个月{{ raw.giftName }}</td>
-                    
-                        <td v-if="raw.type == 'like' || raw.type == 'subscribe' || raw.type == 'welcome' || raw.type == 'superChat'">其他</td>
+
+                        <td
+                            v-if="raw.type == 'like' || raw.type == 'subscribe' || raw.type == 'welcome' || raw.type == 'superChat'">
+                            其他</td>
                         <td v-if="raw.type == 'like'">点赞</td>
                         <td v-if="raw.type == 'subscribe'">关注</td>
                         <td v-if="raw.type == 'welcome'">欢迎</td>
@@ -42,42 +55,62 @@
     display: flex;
     flex-direction: column;
 }
+
 .container {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
 }
+.faceImg{
+    width: 5%;
+}
 .username {
-    width: 28%;
+    width: 15%;
+}
 
+.guard {
+    width: 5%
 }
+
+.medal {
+    width: 10%;
+}
+
 .action {
-    width: 12%;
+    width: 8%;
 }
+
 .text {
-    width: 60%;
+    width: 57%;
 }
+
 .filterd {
-    background-color: rgba(255, 0, 0, 0.7) !important;
+    color: grey;
+    background-color: rgba(138, 138, 138, 0.445) !important;
 }
-.filterd > td {
+
+.filterd>td {
     background: none !important;
 }
+
 .v-card-title {
     display: flex;
 }
-.v-card-title > div {
+
+.v-card-title>div {
     flex-grow: 1;
     display: flex;
     align-items: center;
 }
-.v-card-title > .v-btn {
+
+.v-card-title>.v-btn {
     margin-left: 8px;
 }
 
 :deep(.v-data-table-rows-no-data) {
     display: none;
 }
+
 :deep(table) {
     table-layout: fixed;
 }

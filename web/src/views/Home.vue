@@ -9,12 +9,16 @@
                     <EngineConfigPanel style="height: 100%;"/>
                 </v-sheet>
             </v-col>
-            <v-col cols="12" md="4">
+            <v-col cols="12" md="9">
                 <v-sheet class="pa-2 bg-transparent" style="height: 90vh;">
                     <LogPanel style="height: 100%;" :data="logEvent" @toggle="toggleLock" :locked="locked"/>
                 </v-sheet>
             </v-col>
-            <v-col cols="12" md="3" class="graph-container">
+        </v-row>
+    </v-container>
+    <v-container fluid class="pa-1">
+        <v-row no-gutters>
+            <v-col cols="12" md="8" class="graph-container">
                 <v-sheet class="pa-2 bg-transparent" style="height: 45vh;">
                     <GraphPanel style="height: 100%;" name="原始数据" :columes="['弹幕', '礼物', '入场', '其他']" :data="rawGraphData" :locked="locked"/>
                 </v-sheet>
@@ -22,7 +26,7 @@
                     <GraphPanel style="height: 100%;" name="过滤后数据" :columes="['弹幕', '礼物', '入场', '其他']" :data="filteredGraphData" :locked="locked"/>
                 </v-sheet>
             </v-col>
-            <v-col cols="12" md="2">
+            <v-col cols="12" md="4">
                 <v-sheet class="pa-2 bg-transparent" style="height: 30vh;">
                     <GraphPanel style="height: 100%;" name="CPU占用率" :columes="['百分比']" :data="cpuUsage" :locked="locked"/>
                 </v-sheet>
