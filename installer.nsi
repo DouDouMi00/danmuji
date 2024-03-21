@@ -1,7 +1,7 @@
 ﻿Unicode True
 Name "企鹅弹幕机 版本${VERSION}"
 InstallDir $PROGRAMFILES64\qedanmuji
-OutFile "Installer.exe"
+OutFile "qedanmuji_Installer_v${VERSION}.exe"
 !include MUI2.nsh
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES

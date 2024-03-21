@@ -2,9 +2,9 @@ name: "release"
 on:
   push:
     tags:
-      - 'v*.*.\d+'
+      - '!v*.*.\d+'
       - '!v*.*.*-beta.*'
-      - '!v*.*.*-alpha.*'
+      - 'v*.*.*-alpha.*'
 jobs:
   release:
     name: "Release"
@@ -53,18 +53,15 @@ jobs:
       
       - name: "Create release"
         run: |
-          $VERSION = "${{  github.ref_name }}"
-          $VERSION = $VERSION.Substring(1)
+          $VERSION1 = "${{  github.ref_name }}"
+          $VERSION = $VERSION1.Substring(1)
           & "C:\Program Files (x86)\NSIS\makensis.exe" /DVERSION=$VERSION installer.nsi
+          & mkdir Installer
+          & move .\qedanmuji_Installer_$VERSION1.exe .\Installer\
         shell: pwsh
 
-      - uses: "marvinpinto/action-automatic-releases@latest"
+      - name: Upload installer.exe
+        uses: actions/upload-artifact@v2
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
-          prerelease: false
-          title: ${{  github.ref_name }}
-          files: |
-            LICENSE.txt
-            README.md
-            qedanmuji_Installer_${{  github.ref_name }}.exe
+          name: Installer_win
+          path: .\Installer\*.exe
