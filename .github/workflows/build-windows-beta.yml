@@ -2,9 +2,10 @@ name: "release"
 on:
   push:
     tags:
-      - 'v*.*.\d+'
-      - '!v*.*.*.beta*'
+      - '!v*.*.\d+'
+      - 'v*.*.*.beta*'
       - '!v*.*.*.alpha*'
+
 jobs:
   release:
     name: "Release"
@@ -53,16 +54,15 @@ jobs:
       
       - name: "Create release"
         run: |
-          $VERSION = "${{  github.ref_name }}"
-          $VERSION = $VERSION.Substring(1)
+          $VERSION1 = "${{  github.ref_name }}"
+          $VERSION = $VERSION1.Substring(1)
           & "C:\Program Files (x86)\NSIS\makensis.exe" /DVERSION=$VERSION installer.nsi
         shell: pwsh
 
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
-          prerelease: false
+          prerelease: true
           title: ${{  github.ref_name }}
           files: |
             LICENSE.txt

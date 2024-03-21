@@ -1,0 +1,2 @@
+python -m nuitka --lto=no --standalone --include-package=Cryptodome --include-package=bilibili_api --plugin-enable=tk-inter --include-data-dir=./static=./static --include-data-files=./config.template.json=config.template.json --include-data-files=./symbol-to-text.json=./symbol-to-text.json launcher.py
+@REM 打包后需要手动复制\Lib\site-packages\bilibili_api\data到打包目录下
