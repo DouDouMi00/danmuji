@@ -3,8 +3,8 @@ on:
   push:
     tags:
       - '!v*.*.\d+'
-      - 'v*.*.*-beta.*'
-      - '!v*.*.*-alpha.*'
+      - 'v*.*.*.beta*'
+      - '!v*.*.*.alpha*'
 
 jobs:
   release:
