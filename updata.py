@@ -6,39 +6,44 @@ from base64 import b64encode
 from json import loads
 from packaging.version import parse
 from send2trash import send2trash
-'''
-垃圾回收--未完成
-安装异常处理--未完成
-版本号判断--未完成
-配置文件--未完成
-'''
-#计算机\HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\企鹅弹幕机
-# try:  
-#     reg=winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\企鹅弹幕机")
-#     Version=winreg.QueryValueEx(reg,'DisplayVersion')
-# finally:  
-#     reg.Close()
+from winreg import OpenKey,HKEY_LOCAL_MACHINE,QueryValueEx
+from sys import exit 
+
+try:  
+    with OpenKey(HKEY_LOCAL_MACHINE,r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\企鹅弹幕机") as reg:
+        DDM_VERSION=QueryValueEx(reg,'DisplayVersion')
+        print(f"当前版本：{DDM_VERSION[0]}")
+except:  
+    print("未安装企鹅弹幕机")
+    exit()
 
 headers = {
     'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
 }
-dmj_version = 'v1.4.1'
 updata_url= 'https://api.github.com/repos/DouDouMi00/danmuji/releases/latest'
-download_Temp_path = './temp/'
-data = loads(get(updata_url,headers=headers).text)
-latest_tag = data['name']
-latest_tag_body = data['body']
+
+try:
+    data = loads(get(updata_url, headers=headers).text)
+    latest_tag = data['name']
+    latest_tag_body = data['body']
+except:
+    print("获取最新版本信息失败！")
+    exit()
+
+download_Temp_path = path.expanduser('~') + '\\AppData\\Local\\Temp\\qedmj\\'
 download_name = f'qedanmuji_Installer_{latest_tag}.exe'
 install_exe_path = download_Temp_path + download_name
 download_url = f"https://github.com/DouDouMi00/danmuji/releases/download/latest/{download_name}"
 
-def get_download_info(url:str,headers:dict=None)->list:
+def get_download_info(url:str,headers:dict=None,Attempts:int=5)->list:
     try:
-        response = get(url,headers=headers, stream=True)
-        file_size = int(response.headers.get('content-length', 0))
-        dl_content_md5 = str(response.headers.get('content-md5', ''))
-        print(f"最新版本文件大小：{file_size / 1024 / 1024}MB\n最新版本文件md5:{dl_content_md5}")
-        response.close()
+        for i in range(Attempts):
+            response = get(url,headers=headers, stream=True)
+            file_size = int(response.headers.get('content-length', 0))
+            dl_content_md5 = str(response.headers.get('content-md5', ''))
+            print(f"最新版本文件大小：{file_size / 1024 / 1024}MB\n最新版本文件md5:{dl_content_md5}")
+            response.close()
+            break
         return [file_size,dl_content_md5]
     except Exception as e:
         print(f"获取下载文件信息失败：{e}")
@@ -67,9 +72,13 @@ def download_file(url:str,path:str,headers:dict=None)->bool:
 
 def run_update(InstallExePath:str):
     print(f"安装文件：{InstallExePath}")
-    system(path.abspath(InstallExePath))
+    if system(path.abspath(InstallExePath)) == 0:
+        print("更新完成！")
+        send2trash(InstallExePath)
+    else:
+        print("更新失败！")
 
-if parse(dmj_version) < parse(latest_tag) and not ('beta' in latest_tag):
+if parse(DDM_VERSION[0]) < parse(latest_tag) and not ('beta' in latest_tag):
     print(f"有最新版本：{latest_tag}\n更新内容：{latest_tag_body}\n下载地址：{download_url}")
     if path.exists(install_exe_path):
         if content_md5(install_exe_path)==get_download_info(download_url,headers)[1]:
