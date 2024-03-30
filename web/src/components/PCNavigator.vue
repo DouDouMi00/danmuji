@@ -1,7 +1,7 @@
 <template>
     <v-toolbar>
         <template v-for="(route, index) in router.options.routes" :key="index">
-            <a class="text-white link" :href="route.path" :class="{ selected: router.currentRoute.value.path == route.path }" tabindex="0"><p>{{ route.meta?.name }}</p></a>
+            <a class="text-white link" :href="getLink(route.path)" :class="{ selected: router.currentRoute.value.path == route.path }" tabindex="0"><p>{{ route.meta?.name }}</p></a>
         </template>
         <v-spacer></v-spacer>
         <div class="text-white link"><p tabindex="0">{{ websocketStatus }}</p></div>
@@ -12,7 +12,7 @@
 @import "../styles/settings.scss";
 
 .v-toolbar {
-    background-color: #2057bc;
+    background-color: #67a3be;
 }
 .link {
     height: 100%;
@@ -40,11 +40,24 @@ import { ref } from 'vue';
 
 const router = useRouter();
 const websocketStatus = ref('未连接');
+const functionURL = window.location.hostname === 'localhost' ? 'localhost:8080' : window.location.host;
+
+
+function getLink(path: string) {
+    return `${window.location.protocol}//${functionURL}${path}?token=${new URL(document.URL).searchParams.get("token")as string}`;
+}
 
 onWSState.subscribe(data => {
     if (data == 'connected') {
         websocketStatus.value = '已连接';
     } else {
+        let protocol_http = 'http://';
+        if (window.location.protocol == 'https:') {
+            protocol_http = 'https://';
+        }
+        console.log('无法登陆到服务器，未携带有效token');
+        let token= window.prompt('无法登陆到服务器，未携带有效token');
+        window.location.href = `${protocol_http}${functionURL}/?token=${token}`;
         websocketStatus.value = '未连接';
     }
 });
