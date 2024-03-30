@@ -1,0 +1,10 @@
+{
+    "Upgrade": {
+        "headers": {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+        },
+        "updata_url": "https://api.github.com/repos/DouDouMi00/danmuji/releases/latest",
+        "download_name": "qedanmuji_Installer_%s.exe",
+        "download_url": "https://github.com/DouDouMi00/danmuji/releases/download/latest/%s"
+    }
+}

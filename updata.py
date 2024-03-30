@@ -3,11 +3,14 @@ from os import path,system
 from requests import get
 from hashlib import md5
 from base64 import b64encode
-from json import loads
+from json import loads ,load
 from packaging.version import parse
 from send2trash import send2trash
 from winreg import OpenKey,HKEY_LOCAL_MACHINE,QueryValueEx
 from sys import exit 
+
+with open('config.updata.json', 'r', encoding='utf-8') as file:
+    updata_config = load(file)
 
 try:  
     with OpenKey(HKEY_LOCAL_MACHINE,r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\企鹅弹幕机") as reg:
@@ -17,10 +20,8 @@ except:
     print("未安装企鹅弹幕机")
     exit()
 
-headers = {
-    'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
-}
-updata_url= 'https://api.github.com/repos/DouDouMi00/danmuji/releases/latest'
+headers = updata_config["Upgrade"]["headers"]
+updata_url = updata_config["Upgrade"]["updata_url"]
 
 try:
     data = loads(get(updata_url, headers=headers).text)
@@ -31,9 +32,9 @@ except:
     exit()
 
 download_Temp_path = path.expanduser('~') + '\\AppData\\Local\\Temp\\qedmj\\'
-download_name = f'qedanmuji_Installer_{latest_tag}.exe'
+download_name = updata_config["Upgrade"]["download_name"]%latest_tag
 install_exe_path = download_Temp_path + download_name
-download_url = f"https://github.com/DouDouMi00/danmuji/releases/download/latest/{download_name}"
+download_url = updata_config["Upgrade"]["download_url"]%download_name
 
 def get_download_info(url:str,headers:dict=None,Attempts:int=5)->list:
     try:
