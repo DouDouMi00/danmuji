@@ -8,22 +8,28 @@ from json import loads ,load
 from packaging.version import parse
 from send2trash import send2trash
 from winreg import OpenKey,HKEY_LOCAL_MACHINE,QueryValueEx
-import threading
+from threading import Thread
 
+def update_ui(text_ctrl, text):
+    #修改文本框内容StaticText
+    text_ctrl.SetLabel(text)
 
 class AccessibleFrame(wx.Frame):
     def __init__(self, parent, title):
-        super(AccessibleFrame, self).__init__(parent, title=title, size=(800, 500))
-
+        super(AccessibleFrame, self).__init__(parent, title=title)
+        #获取屏幕宽高
+        self.screen_width, self.screen_height = wx.GetDisplaySize()
+        self.SetSize(self.screen_width//2, self.screen_height//4)
+        self.Centre()
         # 创建一个面板
         panel = wx.Panel(self)
 
         #文本框字体大小
-        self.text_ctrl = wx.StaticText(panel, label="弹幕机正在检查更新")
+        self.StaticText = wx.StaticText(panel, label="弹幕机更新程序",style = 1|wx.EXPAND)
         #设置字体大小
-        self.text_ctrl.SetFont(wx.Font(20, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
-        self.text_ctrl.SetName("文本框")
-        self.text_ctrl.SetToolTip(wx.ToolTip("这是一个文本框"))
+        self.StaticText.SetFont(wx.Font(20, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
+        self.StaticText.SetName("文本框")
+        self.StaticText.SetToolTip(wx.ToolTip("弹幕机更新程序"))
 
         # 创建并设置第一个按钮的标签和访问键
         self.button1 = wx.Button(panel, label="检查更新", id=wx.ID_ANY)
@@ -32,12 +38,12 @@ class AccessibleFrame(wx.Frame):
 
         # 将按钮布局到面板上
         sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(self.text_ctrl, 0,  10)
+        sizer.Add(self.StaticText, 1,wx.EXPAND,10)
         sizer.Add(self.button1, 0, wx.ALL | wx.CENTER, 10)
 
         panel.SetSizer(sizer)
 
-        self.Bind(wx.EVT_BUTTON, self.mian, self.button1)
+        self.Bind(wx.EVT_BUTTON, self.on_start_async, self.button1)
 
     def get_updata_config(self, event):
         self.button1.Enable(False)
@@ -51,8 +57,8 @@ class AccessibleFrame(wx.Frame):
         try:  
             with OpenKey(HKEY_LOCAL_MACHINE,r"SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\企鹅弹幕机") as reg:
                 DDM_VERSION=QueryValueEx(reg,'DisplayVersion')
-                self.text_ctrl.SetLabel(f"当前版本：{DDM_VERSION[0]}")
-                self.text_ctrl.SetFocus()
+                wx.CallAfter(update_ui, self.StaticText, f"当前版本：{DDM_VERSION[0]}")
+                self.StaticText.SetFocus()
             return DDM_VERSION
         except:
             self.button1.Enable(True)  
@@ -76,99 +82,119 @@ class AccessibleFrame(wx.Frame):
                 response = get(url,headers=headers, stream=True)
                 file_size = int(response.headers.get('content-length', 0))
                 dl_content_md5 = str(response.headers.get('content-md5', ''))
-                self.text_ctrl.SetLabel(f"最新版本文件大小：{file_size / 1024 / 1024}MB\n最新版本文件md5:{dl_content_md5}")
-                self.text_ctrl.SetFocus()
+                wx.CallAfter(update_ui, self.StaticText, f"最新版本文件大小：{file_size / 1024 / 1024}MB\n最新版本文件md5:{dl_content_md5}")
+                self.StaticText.SetFocus()
                 response.close()
                 break
-            return [file_size,dl_content_md5]
+            return file_size,dl_content_md5
         except Exception as e:
             self.button1.Enable(True)
-            raise Exception("获取下载信息失败：{e}")
+            raise Exception(f"获取下载信息失败：{e}")
 
     def content_md5(self, event,path:str)->bool:
         self.button1.Enable(False)
         with open(path, 'rb') as f:
             return b64encode(md5(f.read()).digest()).decode("utf-8")
 
-    def download_file(self, event,url:str,download_Temp_path:str,install_exe_path:str,headers:dict=None,Attempts:int=5)->bool:
+    def download_file(self, event,url:str,install_exe_path:str,headers:dict=None,Attempts:int=5)->bool:
+        self.button1.Enable(False)
         try:
             for i in range(Attempts):
-                self.text_ctrl.SetLabel("正在下载...")
-                self.text_ctrl.SetFocus()
+                wx.CallAfter(update_ui, self.StaticText, "正在下载...")
+                self.StaticText.SetFocus()
                 response = get(url,headers=headers, stream=True)
                 if response.status_code == 200:
-                    #创建文件夹
-                    if not path.exists(download_Temp_path):
-                        mkdir(download_Temp_path)
+                    file_size = int(response.headers.get('content-length', 0))
                     with open(install_exe_path, "wb") as file:
                         for chunk in response.iter_content(chunk_size=1024):
                             if chunk:
                                 file.write(chunk)
-                    response.close()
-                    self.text_ctrl.SetLabel(f'下载完成！文件在{path}')
-                    self.text_ctrl.SetFocus()
+                                text = f"已下载：{(len(chunk)//file_size)*100}%"
+                                wx.CallAfter(self.SetTitle,f"弹幕机更新{text}")
+                                wx.CallAfter(update_ui, self.StaticText, text)
+                    wx.CallAfter(update_ui, self.StaticText, f'下载完成！文件在{path}')
+                    self.StaticText.SetFocus()
                     break
         except Exception as e:
             self.button1.Enable(True)
             raise Exception(f"下载失败：{e}")
 
     def run_update(self, event,InstallExePath:str):
-        self.text_ctrl.SetLabel(f"安装文件：{InstallExePath}")
-        self.text_ctrl.SetFocus()
+        self.button1.Enable(False)
+        wx.CallAfter(update_ui, self.StaticText, f"安装文件：{InstallExePath}")
+        self.StaticText.SetFocus()
         if system(path.abspath(InstallExePath)) == 0:
-            self.text_ctrl.SetLabel("更新完成！")
-            self.text_ctrl.SetFocus()
+            wx.CallAfter(update_ui, self.StaticText, "更新完成！")
+            self.StaticText.SetFocus()
             send2trash(InstallExePath)
         else:
             self.button1.Enable(True)
             raise Exception("更新失败")
 
-    def mian(self,event):
+    def on_start_async(self, event):
+        self.button1.Enable(False)
+        thread = Thread(target=self.mian)
+        thread.start()
+
+    def on_start_async2(self, event):
+        self.button1.Enable(False)
+        thread2 = Thread(target=self.mian2)
+        thread2.start()
+    
+    def mian2(self):
+        if path.exists(self.install_exe_path):
+            file_size,dl_content_md5 =self.get_download_info(self,self.download_url,self.headers)
+            if self.content_md5(self,self.install_exe_path)==dl_content_md5:
+                wx.CallAfter(update_ui, self.StaticText, "文件MD5值一致,开始更新")
+                print("文件MD5值不一致，重新下载！")
+                self.StaticText.SetFocus()
+                self.run_update(self,self.install_exe_path)
+            else:
+                wx.CallAfter(update_ui, self.StaticText, "文件已损坏，重新下载！")
+                print("文件MD5值不一致，重新下载！")
+                self.StaticText.SetFocus()
+                send2trash(self.install_exe_path)
+                self.download_file(self,self.download_url,self.install_exe_path,self.headers)
+        else:
+            wx.CallAfter(update_ui, self.StaticText, "文件不存在，重新下载！")
+            print("文件不存在，重新下载！")
+            self.StaticText.SetFocus()
+            self.download_file(self,self.download_url,self.install_exe_path,self.headers)
+    def mian(self):
         try:
             updata_config = self.get_updata_config(self)
             DDM_VERSION = self.DMJ_InstStatCheck(self)
             
-            headers = updata_config["Upgrade"]["headers"]
+            self.headers = updata_config["Upgrade"]["headers"]
             updata_url = updata_config["Upgrade"]["updata_url"]
-            latest_tag,latest_tag_body = self.get_latest_tag(self,updata_url,headers)
+            latest_tag,latest_tag_body = self.get_latest_tag(self,updata_url,self.headers)
             
-
             download_Temp_path = path.expanduser('~') + '\\AppData\\Local\\Temp\\qedmj\\'
             download_name = updata_config["Upgrade"]["download_name"]%latest_tag
-            install_exe_path = download_Temp_path + download_name
-            download_url = updata_config["Upgrade"]["download_url"]%download_name
+            self.install_exe_path = download_Temp_path + download_name
+            self.download_url = updata_config["Upgrade"]["download_url"]%download_name
+
+            if not path.exists(download_Temp_path):
+                mkdir(download_Temp_path)
 
             if parse(DDM_VERSION[0]) < parse(latest_tag) and not ('beta' in latest_tag):
-                self.text_ctrl.SetLabel(f"有最新版本：{latest_tag}\n更新内容：{latest_tag_body}\n下载地址：{download_url}")
-                self.text_ctrl.SetFocus()
-                if path.exists(install_exe_path):
-                    if self.content_md5(self,install_exe_path)==self.get_download_info(self,download_url,headers)[1]:
-                        self.text_ctrl.SetLabel("文件MD5值一致,开始更新")
-                        self.text_ctrl.SetFocus()
-                        self.run_update(self,install_exe_path)
-                    else:
-                        self.text_ctrl.SetLabel("文件已损坏，重新下载！")
-                        self.text_ctrl.SetFocus()
-                        send2trash(install_exe_path)
-                        new_thread = threading.Thread(target=self.download_file,
-                                                      args=(self,download_url, download_Temp_path,install_exe_path, headers))
-                        new_thread.start()
-                else:
-                    self.text_ctrl.SetLabel("文件不存在，重新下载！")
-                    self.text_ctrl.SetFocus()
-                    new_thread = threading.Thread(target=self.download_file,
-                                                  args=(self,download_url, download_Temp_path,install_exe_path, headers))
-                    new_thread.start()
+                wx.CallAfter(update_ui, self.StaticText, f"有最新版本：{latest_tag}\n更新内容：{latest_tag_body}\n下载地址：{self.download_url}\n")
+                self.StaticText.SetFocus()
+                self.button1.Enable(True)
+                #设置按钮名称确认更新
+                self.button1.SetLabel("确认更新")
+                self.Bind(wx.EVT_BUTTON, self.on_start_async2, self.button1)
             else:
-                self.text_ctrl.SetLabel("当前版本为最新版本，无需更新！")
-                self.text_ctrl.SetFocus()
+                wx.CallAfter(update_ui, self.StaticText, "当前版本为最新版本，无需更新！")
+                print("当前版本为最新版本，无需更新！")
+                self.StaticText.SetFocus()
         except Exception as e:
-            self.text_ctrl.SetLabel(f"更新失败：{e}")
-            self.text_ctrl.SetFocus()
+            wx.CallAfter(update_ui, self.StaticText, f"更新失败：{e}")
+            self.StaticText.SetFocus()
             self.button1.Enable(True)
 
 if __name__ == "__main__":
     app = wx.App()
-    frame = AccessibleFrame(None, "弹幕姬更新程序")
+    frame = AccessibleFrame(None, "弹幕机更新程序")
     frame.Show(True)
     app.MainLoop()
