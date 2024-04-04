@@ -21,6 +21,20 @@
             "password": "nuozimeow"
         }
     },
+    "keyboard_hotkey": {
+        "handleFlush": "ctrl+alt+f5",
+        "handleGetDelay": "alt+f6",
+        "handleTTSRatePlus": "ctrl+alt+[",
+        "handleTTSRateMinus": "ctrl+alt+]",
+        "handleTTSVolumePlus": "ctrl+alt+=",
+        "handleTTSVolumeMinus": "ctrl+alt+-",
+        "handleTTSVoicePlus": "ctrl+alt+m",
+        "handleReadNextGiftMessages": "alt+f7",
+        "handleReadNextHistoryDanmu": "alt+f8",
+        "handleReadLastGiftMessages": "alt+t",
+        "handleReadLastHistoryDanmu": "alt+y",
+        "handleReadNewestMessages": "alt+f9"
+    },
     "dynamic": {
         "system": {
             "alertWhenMessagesQueueLonger": {
