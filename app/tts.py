@@ -107,7 +107,14 @@ async def tts(text, channel=0, config=None):
     ttsConfig = getJsonConfig()['dynamic']['tts']
     # 标点符号处理
     if ttsConfig['readSymbolEnable']:
-        text = "".join([symbolToText[char] if char in symbolToText else char for char in text])
+    # 将字符串text中的特殊字符转换为对应的文字，忽略黑名单中的字符
+        temp_text = []
+        for char in text:
+            if char not in ttsConfig['blacklistSymbol'] and char in symbolToText:
+                temp_text.append(symbolToText[char])
+            else:
+                temp_text.append(char)
+        text = "".join(temp_text)
     text = xmlEscape(text)
 
     # 支持日语

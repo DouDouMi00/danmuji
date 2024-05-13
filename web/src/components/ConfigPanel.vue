@@ -59,6 +59,7 @@
             <v-divider></v-divider>
 
             <v-switch v-model="config.tts.readSymbolEnable" inset color="blue" label="启用标点符号朗读" aria-label="启用标点符号朗读"></v-switch>
+            <v-text-field v-model="blacklistSymbol" label="标点符号朗读黑名单(逗号分隔)" aria-label="标点符号朗读黑名单(逗号分隔)"></v-text-field>
             <v-select class="block-select" v-model="config.tts.speaker" :items="ttsSpeakers" label="TTS音频通道" aria-label="TTS音频通道"></v-select>
             <v-select v-model="config.tts.voice" :items="ttsCNVoices" label="主TTS发音引擎" aria-label="主TTS发音引擎"></v-select>
             <v-slider v-model="config.tts.rate" label="总语速" hint="TTS语速(包括其他语言)" min="1" max="100" step="1"></v-slider>
@@ -121,6 +122,7 @@ const blacklistKeywords = ref("");
 const blacklistUsers = ref("");
 const whitelistUsers = ref("");
 const whitelistKeywords = ref("");
+const blacklistSymbol = ref("");
 const config = ref(undefined as unknown as DynamicConfig);
 config.value = {
     system: {
@@ -132,6 +134,7 @@ config.value = {
     },
     tts: {
         readSymbolEnable: true,
+        blacklistSymbol:["[","]"],
         speaker: "",
         volume: 100,
         voice: "",
@@ -208,6 +211,7 @@ function parseConfig(data: DynamicConfig) {
         blacklistUsers.value = config.value.filter.danmu.blacklistUsers.join('，');
         whitelistUsers.value = config.value.filter.danmu.whitelistUsers.join('，');
         whitelistKeywords.value = config.value.filter.danmu.whitelistKeywords.join('，');
+        blacklistSymbol.value = config.value.tts.blacklistSymbol.join('，');
         ttsCNVoices.value = [];
         ttsJPVoices.value = [];
         (await getAllVoices()).forEach(voice => {
@@ -265,6 +269,7 @@ function onSave() {
     config.value.filter.danmu.blacklistUsers = blacklistUsers.value != "" ? blacklistUsers.value.split(/[,，]+/) : [];
     config.value.filter.danmu.whitelistUsers = whitelistUsers.value != "" ? whitelistUsers.value.split(/[,，]+/) : [];
     config.value.filter.danmu.whitelistKeywords = whitelistKeywords.value != "" ? whitelistKeywords.value.split(/[,，]+/) : [];
+    config.value.tts.blacklistSymbol = blacklistSymbol.value != "" ? blacklistSymbol.value.split(/[,，]+/) : [];
 
     setDynamicConfig(config.value).then(val => {
         saving.value = false;

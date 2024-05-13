@@ -45,6 +45,7 @@
         },
         "tts": {
             "readSymbolEnable": true,
+            "blacklistSymbol": ["[","]"],
             "speaker": "",
             "volume": 100,
             "voice": "Microsoft Huihui",
@@ -67,8 +68,8 @@
                 "symbolEnable": true,
                 "emojiEnable": true,
                 "deduplicate": false,
-                "readfansMedalName" : false,
-                "readfansMedalGuardLevel" : true,
+                "readfansMedalName": false,
+                "readfansMedalGuardLevel": true,
                 "isFansMedalBelongToLive": false,
                 "fansMedalGuardLevelBigger": 0,
                 "fansMedalLevelBigger": 0,
