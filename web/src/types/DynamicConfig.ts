@@ -8,6 +8,7 @@ export type DynamicConfig = {
     },
     "tts": {
         "readSymbolEnable": boolean,
+        "blacklistSymbol": string[],
         "speaker": string,
         "volume": number,
         "voice": string,
