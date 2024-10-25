@@ -1,5 +1,5 @@
 werkzeug==2.3.8
-quart==0.18.4
+quart==0.19.7
 quart-cors==0.6.0
 python-dotenv==1.0.0
 websockets==11.0.3
